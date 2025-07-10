@@ -8,17 +8,21 @@ setwd("~/Documents/grainDay")
 
 # Define UI for grainDay app
 
-ui <- fluidPage(
+ui <- fluidPage( #fluid page so things are in rows ?
 
   #App Title
   titlePanel(GrainDay),
   
   sidebarLayout(
-    inputPanel()
+    inputPanel(
+      actionButton("type_button", "Select type of sediment classification"),
+      
+      ),
     
-    
-    
-    
+    mainPanel(
+      textOutput("Style")
+      
+    )
   )
 )
 
@@ -27,7 +31,11 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 
-
+server <- function(input, output, session) {
+  
+  
+  
+}
 
 
 
