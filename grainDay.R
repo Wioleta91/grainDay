@@ -1,20 +1,23 @@
 #This program takes in percentage of grain type in a sediment and calculates sediment type
+#Classifying sediment types based on grain size is a well-scoped, achievable project
 #The project has to be broken down into small steps
 #Sediment classification type
 
 library(shiny)
+#library(bslib)
+
 setwd("~/Documents/grainDay")
 
 
 # Define UI for grainDay app
 
-ui <- fluidPage( #fluid page so things are in rows ?
+ui <- fluidPage( 
 
   #App Title
-  titlePanel(GrainDay),
+  titlePanel("GrainDay"),
   
   sidebarLayout(
-    inputPanel(
+    sidebarPanel(
       actionButton("type_button", "Select type of sediment classification"),
       
       ),
@@ -31,7 +34,15 @@ ui <- fluidPage( #fluid page so things are in rows ?
 
 # Define server logic required to draw a histogram
 
-server <- function(input, output, session) {
+server <- function(input, output) {
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -41,3 +52,4 @@ server <- function(input, output, session) {
 
 
 # Run the application 
+shinyApp(ui = ui, server = server)
