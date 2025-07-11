@@ -32,16 +32,30 @@ ui <- fluidPage(
                 value = "Type sampleID"),
       
       
-      #Next, ask the User to type Mass of their sample. This will be used to 
-      #calculate percentage of each grain Fraction
+      #Next, ask the User to type Mass of each fraction in the sample. This will be used to 
+      #calculate total mass and percentage of each fraction
       
-      numericInput(inputId = "Total_mass",
-                   label = "Please insert Total Mass",
+
+      numericInput(inputId = "Gravel_mass",
+                   label = "Please insert Gravel Mass",
                    value = "0"
-                   )
+      ),
+      
+      numericInput(inputId = "Sand_mass",
+                   label = "Please insert Sand Mass",
+                   value = "0"
+      ),
       
       
+      numericInput(inputId = "Silt_mass",
+                   label = "Please insert Silt Mass",
+                   value = "0"
+      ),
       
+      numericInput(inputId = "Clay_mass",
+                   label = "Please insert Clay Mass",
+                   value = "0"
+      )
       
       
       
@@ -70,6 +84,16 @@ server <- function(input, output) {
   
   output$sampleID <- renderText({
     input$sampleID
+
+    ##Add total mass of the sediment result
+    
+    
+    
+    
+    
+    
+    
+    
     
   })
   
