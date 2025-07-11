@@ -38,23 +38,23 @@ ui <- fluidPage(
       actionButton("totalMass_button", "Pick the Love Interest"),
       
 
-      Gravel_mass <- numericInput(inputId = "Gravel_mass",
+      numericInput(inputId = "Gravel_mass",
                    label = "Please insert Gravel Mass",
                    value = NA
       ),
       
-      Sand_mass <- numericInput(inputId = "Sand_mass",
+      numericInput(inputId = "Sand_mass",
                    label = "Please insert Sand Mass",
                    value = NA
       ),
       
       
-      Silt_mass <- numericInput(inputId = "Silt_mass",
+     numericInput(inputId = "Silt_mass",
                    label = "Please insert Silt Mass",
                    value = NA
       ),
       
-      Clay_mass <- numericInput(inputId = "Clay_mass",
+     numericInput(inputId = "Clay_mass",
                    label = "Please insert Clay Mass",
                    value = NA
       )
@@ -70,9 +70,9 @@ ui <- fluidPage(
     mainPanel(
       h3("Sample ID"),
       textOutput("sampleID", container = span),
-      h5("Total mass")
+      h5("Total mass"),
       #print total mass of the sediment sample - after pressing a button
-      
+      textOutput("totalMass", container = span)
       
       
     )
@@ -94,25 +94,24 @@ server <- function(input, output) {
   output$sampleID <- renderText({
     input$sampleID})
   
+  
+  
+  
   totalMass <- reactiveVal("")
-  
-  
+
   
   #calculating the mass value instruction
   #totalMass <- print("Gravel_mass"+"Sand_mass"+"Silt_mass"+"Clay_mass")
   # When the button is clicked, calculate total mass
   observeEvent(input$totalMass_button, {
-    totalMass(sample(Gravel_mass+Sand_mass+Silt_mass+Clay_mass))
+    totalMass(sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
   })
   
 
     ##Add total mass of the sediment result
     
   
-    
-    
-    
-    
+
     
     
     
