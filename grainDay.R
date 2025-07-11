@@ -23,7 +23,7 @@ ui <- fluidPage(
     sidebarPanel(
       
       #Later different types of classification might be added
-      actionButton("type_button", "Select type of sediment classification"),
+      #actionButton("type_button", "Select type of sediment classification"),
       
       #For easy visualization, this textInput field asks for the sample ID
       #The text will reactively appear on the main field
@@ -35,27 +35,30 @@ ui <- fluidPage(
       #Next, ask the User to type Mass of each fraction in the sample. This will be used to 
       #calculate total mass and percentage of each fraction
       
+      actionButton("totalMass_button", "Pick the Love Interest"),
+      
 
-      numericInput(inputId = "Gravel_mass",
+      Gravel_mass <- numericInput(inputId = "Gravel_mass",
                    label = "Please insert Gravel Mass",
-                   value = "0"
+                   value = NA
       ),
       
-      numericInput(inputId = "Sand_mass",
+      Sand_mass <- numericInput(inputId = "Sand_mass",
                    label = "Please insert Sand Mass",
-                   value = "0"
+                   value = NA
       ),
       
       
-      numericInput(inputId = "Silt_mass",
+      Silt_mass <- numericInput(inputId = "Silt_mass",
                    label = "Please insert Silt Mass",
-                   value = "0"
+                   value = NA
       ),
       
-      numericInput(inputId = "Clay_mass",
+      Clay_mass <- numericInput(inputId = "Clay_mass",
                    label = "Please insert Clay Mass",
-                   value = "0"
+                   value = NA
       )
+      
       
       
       
@@ -65,7 +68,13 @@ ui <- fluidPage(
     
     #here is the connecting part between output and server logic
     mainPanel(
-      h3(textOutput("sampleID", container = span))      
+      h3("Sample ID"),
+      textOutput("sampleID", container = span),
+      h5("Total mass")
+      #print total mass of the sediment sample - after pressing a button
+      
+      
+      
     )
   )
 )
@@ -83,10 +92,23 @@ server <- function(input, output) {
   #instruction for that is in runExample("03_reactivity") 
   
   output$sampleID <- renderText({
-    input$sampleID
+    input$sampleID})
+  
+  totalMass <- reactiveVal("")
+  
+  
+  
+  #calculating the mass value instruction
+  #totalMass <- print("Gravel_mass"+"Sand_mass"+"Silt_mass"+"Clay_mass")
+  # When the button is clicked, calculate total mass
+  observeEvent(input$totalMass_button, {
+    totalMass(sample(Gravel_mass+Sand_mass+Silt_mass+Clay_mass))
+  })
+  
 
     ##Add total mass of the sediment result
     
+  
     
     
     
@@ -94,8 +116,6 @@ server <- function(input, output) {
     
     
     
-    
-  })
   
   
   
