@@ -51,8 +51,7 @@ ui <- fluidPage(
     
     #here is the connecting part between output and server logic
     mainPanel(
-      textOutput("Style")
-      
+      h3(textOutput("sampleID", container = span))      
     )
   )
 )
@@ -69,6 +68,10 @@ server <- function(input, output) {
   #Reactive sampleID value
   #instruction for that is in runExample("03_reactivity") 
   
+  output$sampleID <- renderText({
+    input$sampleID
+    
+  })
   
   
   
