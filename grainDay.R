@@ -60,12 +60,7 @@ ui <- fluidPage(
      
      actionButton("totalMass_button", "Calculate Total mass"),
      
-     ###
-     textInput("txt", "Enter the text to display below:"),
-     textOutput("text"),
-     verbatimTextOutput("verb")
-     ###
-     
+
       
       
       
@@ -76,11 +71,19 @@ ui <- fluidPage(
     
     #here is the connecting part between output and server logic
     mainPanel(
-      h3("Sample ID"),
+      h5("Sample ID:"),
       textOutput("sampleID", container = span),
       h5("Total mass"),
       #print total mass of the sediment sample - after pressing a button
-      textOutput("totalMass_output", container = span)
+      textOutput("totalMass_output", container = span),
+      
+      #consider output format 
+      #this code has separate tabs for the plot, summary and table
+      tabsetPanel(
+        tabPanel("Plot", plotOutput("plot")),
+        tabPanel("Summary", verbatimTextOutput("summary")),
+        tabPanel("Table", tableOutput("table"))
+      )
       
       
     )
@@ -94,10 +97,6 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   
-  ###
-  output$text <- renderText({ input$txt })
-  output$verb <- renderText({ input$txt })
-  ###
 
   #Logic for each of the button option
   
@@ -107,13 +106,7 @@ server <- function(input, output) {
   output$sampleID <- renderText({
     input$sampleID})
   
-  
-  
-  
-
-  
-  #calculating the mass value instruction
-  #totalMass <- print("Gravel_mass"+"Sand_mass"+"Silt_mass"+"Clay_mass")
+  # calculating the total mass value instruction
   # When the button is clicked, calculate total mass
   
   totalMass <- reactiveVal("")
@@ -126,6 +119,16 @@ server <- function(input, output) {
     totalMass()
     
     })
+  
+
+  # creating pie chart in the summary 
+  
+  
+  
+  
+  
+  
+  
   
 
     ##Add total mass of the sediment result
