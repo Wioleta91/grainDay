@@ -35,7 +35,6 @@ ui <- fluidPage(
       #Next, ask the User to type Mass of each fraction in the sample. This will be used to 
       #calculate total mass and percentage of each fraction
       
-      actionButton("totalMass_button", "Pick the Love Interest"),
       
 
       numericInput(inputId = "Gravel_mass",
@@ -57,7 +56,16 @@ ui <- fluidPage(
      numericInput(inputId = "Clay_mass",
                    label = "Please insert Clay Mass",
                    value = NA
-      )
+      ),
+     
+     actionButton("totalMass_button", "Calculate Total mass"),
+     
+     ###
+     textInput("txt", "Enter the text to display below:"),
+     textOutput("text"),
+     verbatimTextOutput("verb")
+     ###
+     
       
       
       
@@ -72,7 +80,7 @@ ui <- fluidPage(
       textOutput("sampleID", container = span),
       h5("Total mass"),
       #print total mass of the sediment sample - after pressing a button
-      textOutput("totalMass", container = span)
+      textOutput("totalMass_output", container = span)
       
       
     )
@@ -85,6 +93,11 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 
 server <- function(input, output) {
+  
+  ###
+  output$text <- renderText({ input$txt })
+  output$verb <- renderText({ input$txt })
+  ###
 
   #Logic for each of the button option
   
@@ -97,15 +110,22 @@ server <- function(input, output) {
   
   
   
-  totalMass <- reactiveVal("")
 
   
   #calculating the mass value instruction
   #totalMass <- print("Gravel_mass"+"Sand_mass"+"Silt_mass"+"Clay_mass")
   # When the button is clicked, calculate total mass
+  
+  totalMass <- reactiveVal("")
+
   observeEvent(input$totalMass_button, {
     totalMass(sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
   })
+  
+  output$totalMass_output <- renderText({
+    totalMass()
+    
+    })
   
 
     ##Add total mass of the sediment result
@@ -126,7 +146,6 @@ server <- function(input, output) {
   
   
 }
-
 
 
 
