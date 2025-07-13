@@ -60,7 +60,7 @@ ui <- fluidPage(
      
      #this button calculates mass of sample
      # the click will also store the data for table/pie chart 
-     actionButton("totalMass_button",
+     actionButton("update_button", #update instead of totalMass_button
                   "Calculate Total mass"),
      
      
@@ -109,41 +109,52 @@ server <- function(input, output) {
   
   #
   totalMass <- reactiveVal("")
-  Gravel <- reactiveVal("")
-  Sand <- reactiveVal("")
+  #Gravel <- reactiveVal("")
+  #Sand <- reactiveVal("")
+  
+  # this will be the correct way to use the button
+  # update_click <- eventReactive({
+  # table
+  
+  
+  # })
+  
   
   #
 
-  observeEvent(input$totalMass_button, {
+  observeEvent(input$update_button, {
     
     totalMass(sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
-    Gravel(input$Gravel_mass)
-    Sand(input$Sand)
-    
+    #should i add the other conditions here?
+
   })
   
+  
+  #just output of total mass in the main field below sample ID (not in tabs)
   output$totalMass_output <- renderText({
     totalMass()
     
     })
   
   
+  
+  output$table <- renderTable({
+    data.frame(
+      ID = c(input$sampleID),
+      Sediment_mass = c(totalMass()),
+      Gravel_perc = c(gravels()),
+      Sand_perc = c(sands()),
+      Silt_perc = c(silts()),
+      Clay_perc = c(clays()),
+      Location = c(input$sampleLocation)
+      
+      
+    )
+    
+  })
+  
   #other outputs being saved?
-  output$Gravel_output <- renderText({
-    Gravel()
-    
-  })
-  
-  output$Sand_output <- renderText({
-    Sand()
-    
-  })
-  
-  
-  
-  
-  
-  
+
   # saving inserted values into a data frame
   
   #datasetInput <- reactive("")
