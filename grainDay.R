@@ -31,6 +31,10 @@ ui <- fluidPage(
                 label = "Please insert sample ID:",
                 value = "Type sampleID"),
       
+      textInput(inputId = "sampleLocation",
+                label = "Please insert sample Location:",
+                value = "Type sample Location"),
+      
       
       #Next, ask the User to type Mass of each fraction in the sample. This will be used to 
       #calculate total mass and percentage of each fraction
@@ -61,7 +65,7 @@ ui <- fluidPage(
      #this button calculates mass of sample
      # the click will also store the data for table/pie chart 
      actionButton("update_button", #update instead of totalMass_button
-                  "Calculate Total mass"),
+                  "Calculate Parameters"),
      
      
       
@@ -103,29 +107,40 @@ server <- function(input, output) {
   
   output$sampleID <- renderText({
     input$sampleID})
+  #output$sampleLocation <- renderText({
+  # input$sampleLocation})
   
-  # calculating the total mass value instruction
+  output$update_button <- renderTable({
+    input$update_button})
+  
+  
+  
+  # Calculating the total mass value instruction
   # When the button is pushed, calculate total mass
+  # UPDATE: this button will calculate the % of each fraction and append them to the Table
   
   #
   totalMass <- reactiveVal("")
-  #Gravel <- reactiveVal("")
-  #Sand <- reactiveVal("")
+  gravels <- reactiveVal("")
+  sands <- reactiveVal("")
+  silts <- reactiveVal("")
+  clays <- reactiveVal("")
   
   # this will be the correct way to use the button
-  # update_click <- eventReactive({
-  # table
   
   
-  # })
-  
+
   
   #
 
   observeEvent(input$update_button, {
     
     totalMass(sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
-    #should i add the other conditions here?
+    gravels(100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    sands(100*input$Sand_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    silts(100*input$Silt_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    clays(100*input$Clay_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    #should i add the other conditions here? this is not working yet
 
   })
   
@@ -136,16 +151,21 @@ server <- function(input, output) {
     
     })
   
+  #output$gravels_output <- renderText({
+  #  gravels()
+  #})
+  
+  
   
   
   output$table <- renderTable({
     data.frame(
       ID = c(input$sampleID),
       Sediment_mass = c(totalMass()),
-      Gravel_perc = c(gravels()),
-      Sand_perc = c(sands()),
-      Silt_perc = c(silts()),
-      Clay_perc = c(clays()),
+      Gravel_perc = c(gravels()),#c((100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
+      Sand_perc = c(sands()),#c((100*input$Sand_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
+      Silt_perc = c(silts()),#c((100*input$Silt_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
+      Clay_perc = c(clays()),#c((100*input$Clay_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
       Location = c(input$sampleLocation)
       
       
