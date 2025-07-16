@@ -9,6 +9,17 @@ library(shiny)
 setwd("~/Documents/grainDay")
 
 
+#data frame for appending the new inputs
+df <- data.frame(sampleID = character(),
+                 Sediment_mass = numeric(),
+                 Gravel_perc = numeric(),
+                 Sand_perc = numeric(),
+                 Silt_perc = numeric(),
+                 Clay_perc = numeric(),
+                 Location = character(),
+                 stringsAsFactors = FALSE)
+
+
 # Define UI for grainDay app
 
 ui <- fluidPage( 
@@ -36,8 +47,9 @@ ui <- fluidPage(
                 value = "Type sample Location"),
       
       
-      #Next, ask the User to type Mass of each fraction in the sample. This will be used to 
-      #calculate total mass and percentage of each fraction
+      # Next, ask the User to type Mass of each fraction in the sample. 
+      # This will be used to 
+      # calculate total mass and percentage of each fraction
       
       
 
@@ -84,7 +96,7 @@ ui <- fluidPage(
       tabsetPanel(
         tabPanel("Plot", plotOutput("plot")),
         tabPanel("Summary", verbatimTextOutput("summary")),
-        tabPanel("Table", tableOutput("table"))
+        tabPanel("Table", tableOutput("result"))
       )
       
       
@@ -107,8 +119,8 @@ server <- function(input, output) {
   
   output$sampleID <- renderText({
     input$sampleID})
-  #output$sampleLocation <- renderText({
-  # input$sampleLocation})
+  output$sampleLocation <- renderText({
+    input$sampleLocation})
   
   output$update_button <- renderTable({
     input$update_button})
@@ -119,7 +131,7 @@ server <- function(input, output) {
   # When the button is pushed, calculate total mass
   # UPDATE: this button will calculate the % of each fraction and append them to the Table
   
-  #
+  # 
   totalMass <- reactiveVal("")
   gravels <- reactiveVal("")
   sands <- reactiveVal("")
@@ -127,6 +139,9 @@ server <- function(input, output) {
   clays <- reactiveVal("")
   
   # this will be the correct way to use the button
+  
+  # starting a reactive data frame
+  df_server <- reactiveVal(df)
   
   
 
@@ -150,28 +165,60 @@ server <- function(input, output) {
     totalMass()
     
     })
+
+  
+  ##different method with the table
+  
+  data <- reactive({
+    req(input$update_button)
+    data.frame(sampleID = input$sampleID,
+               Sediment_mass = totalMass(),
+               Gravel_perc = gravels(),
+               Sand_perc = sands(),
+               Silt_perc = silts(),
+               Clay_perc = clays(),
+               Location = input$sampleLocation
+               
+               
+               )
+  })
+  
+  
+  
+  
+  observeEvent(input$update_button, {
+    temp_df <- rbind(df_server(),data())
+    df_server(temp_df)
+  })
+  output$result <- renderTable(df_server())
+  
+  
+  
+  
+  
+  
+  
+  
   
   #output$gravels_output <- renderText({
   #  gravels()
   #})
   
   
-  
-  
-  output$table <- renderTable({
-    data.frame(
-      ID = c(input$sampleID),
-      Sediment_mass = c(totalMass()),
-      Gravel_perc = c(gravels()),#c((100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
-      Sand_perc = c(sands()),#c((100*input$Sand_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
-      Silt_perc = c(silts()),#c((100*input$Silt_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
-      Clay_perc = c(clays()),#c((100*input$Clay_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
-      Location = c(input$sampleLocation)
+ # output$table <- renderTable({
+  #  data.frame(
+  #    ID = c(input$sampleID),
+  #    Sediment_mass = c(totalMass()),
+  #   Gravel_perc = c(gravels()),#c((100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
+  #    Sand_perc = c(sands()),#c((100*input$Sand_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
+  #    Silt_perc = c(silts()),#c((100*input$Silt_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
+  #    Clay_perc = c(clays()),#c((100*input$Clay_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
+  #    Location = c(input$sampleLocation)
       
       
-    )
+  #  )
     
-  })
+ # })
   
   #other outputs being saved?
 
