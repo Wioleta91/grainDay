@@ -33,11 +33,12 @@ ui <- fluidPage(
     
     sidebarPanel(
       
-      #Later different types of classification might be added
-      #actionButton("type_button", "Select type of sediment classification"),
+      # Future ideas: different types of classification might be added
+      # actionButton("type_button", "Select type of sediment classification"),
       
-      #For easy visualization, this textInput field asks for the sample ID
-      #The text will reactively appear on the main field
+      # For easy visualization, this textInput field asks for the sample ID
+      # The text will reactively appear on the main field
+      # To resolve: The active sample can be used to calculate ternary diagram
       textInput(inputId = "sampleID",
                 label = "Please insert sample ID:",
                 value = "Type sampleID"),
@@ -46,6 +47,7 @@ ui <- fluidPage(
                 label = "Please insert sample Location:",
                 value = "Type sample Location"),
       
+  
       
       # Next, ask the User to type Mass of each fraction in the sample. 
       # This will be used to 
@@ -74,8 +76,9 @@ ui <- fluidPage(
                    value = NA
       ),
      
-     #this button calculates mass of sample
-     # the click will also store the data for table/pie chart 
+     # This action button calculates total mass of sediments
+     # It also stores the data input to the Table with calculated percentages of each fraction
+     # Additionally, stores the sample Location (collection) data
      actionButton("update_button", #update instead of totalMass_button
                   "Calculate Parameters"),
      
@@ -83,7 +86,7 @@ ui <- fluidPage(
       
       ),
     
-    #here is the connecting part between output and server logic
+    # Here is the connecting part between output and server logic
     mainPanel(
       h5("Sample ID:"),
       textOutput("sampleID", container = span),
@@ -95,8 +98,9 @@ ui <- fluidPage(
       #this code has separate tabs for the plot, summary and table
       tabsetPanel(
         tabPanel("Plot", plotOutput("plot")),
-        tabPanel("Summary", verbatimTextOutput("summary")),
-        tabPanel("Table", tableOutput("result"))
+        tabPanel("Table", tableOutput("result")),
+        tabPanel("Summary", verbatimTextOutput("summary"))
+        
       )
       
       
@@ -108,37 +112,38 @@ ui <- fluidPage(
 
 
 # Define server logic required to draw a histogram
+# First - the Update button does percentage calculations
 
 server <- function(input, output) {
   
 
-  #Logic for each of the button option
-  
-  #Reactive sampleID value
-  #instruction for that is in runExample("03_reactivity") 
+  # Reactive sampleID value
+  # instruction for that is in runExample("03_reactivity") 
   
   output$sampleID <- renderText({
     input$sampleID})
   output$sampleLocation <- renderText({
     input$sampleLocation})
   
-  output$update_button <- renderTable({
-    input$update_button})
   
-  
-  
-  # Calculating the total mass value instruction
+  # Calculating the total mass value of sediment fractions instruction
   # When the button is pushed, calculate total mass
-  # UPDATE: this button will calculate the % of each fraction and append them to the Table
+  # And calculate the % of each fraction and append them to the Table
   
-  # 
+  # Storing each parameter as a reactive Value
   totalMass <- reactiveVal("")
   gravels <- reactiveVal("")
   sands <- reactiveVal("")
   silts <- reactiveVal("")
   clays <- reactiveVal("")
   
-  # this will be the correct way to use the button
+  #just output of total mass in the main field below sample ID (not in Table)
+  output$totalMass_output <- renderText({
+    totalMass()
+    
+  })
+  
+  
   
   # starting a reactive data frame
   df_server <- reactiveVal(df)
@@ -155,19 +160,17 @@ server <- function(input, output) {
     sands(100*input$Sand_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
     silts(100*input$Silt_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
     clays(100*input$Clay_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
-    #should i add the other conditions here? this is not working yet
+    # Initial sample mass and % loss has to be added here
+    
+    # Render the data frame
+    temp_df <- rbind(df_server(),data())
+    df_server(temp_df)
 
   })
   
   
-  #just output of total mass in the main field below sample ID (not in tabs)
-  output$totalMass_output <- renderText({
-    totalMass()
-    
-    })
-
   
-  ##different method with the table
+  ## Apply calculated values to the DF
   
   data <- reactive({
     req(input$update_button)
@@ -183,58 +186,15 @@ server <- function(input, output) {
                )
   })
   
-  
-  
-  
-  observeEvent(input$update_button, {
-    temp_df <- rbind(df_server(),data())
-    df_server(temp_df)
-  })
   output$result <- renderTable(df_server())
   
-  
-  
-  
-  
-  
-  
-  
-  
-  #output$gravels_output <- renderText({
-  #  gravels()
-  #})
-  
-  
- # output$table <- renderTable({
-  #  data.frame(
-  #    ID = c(input$sampleID),
-  #    Sediment_mass = c(totalMass()),
-  #   Gravel_perc = c(gravels()),#c((100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
-  #    Sand_perc = c(sands()),#c((100*input$Sand_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
-  #    Silt_perc = c(silts()),#c((100*input$Silt_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
-  #    Clay_perc = c(clays()),#c((100*input$Clay_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))),
-  #    Location = c(input$sampleLocation)
-      
-      
-  #  )
-    
- # })
-  
-  #other outputs being saved?
 
-  # saving inserted values into a data frame
-  
-  #datasetInput <- reactive("")
-  
-#  output$view <- renderTable({
-#    head(datasetInput(), n = input$obs)
-# })
-  
-
- 
 }
-
-
+  
+  
+  
+  
+  
 
 # Run the application 
 shinyApp(ui = ui, server = server)
