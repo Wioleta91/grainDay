@@ -11,12 +11,15 @@ setwd("~/Documents/grainDay")
 
 #data frame for appending the new inputs
 df <- data.frame(sampleID = character(),
+                 Init_mass = numeric(), #weight of the sample before sieve
                  Sediment_mass = numeric(),
+                 Loss_weight = numeric(), #% of sample lost
                  Gravel_perc = numeric(),
                  Sand_perc = numeric(),
                  Silt_perc = numeric(),
                  Clay_perc = numeric(),
                  Location = character(),
+                 Shepherd_Class = character(), #type of sediment based on classification which?
                  stringsAsFactors = FALSE)
 
 
@@ -53,6 +56,10 @@ ui <- fluidPage(
       # This will be used to 
       # calculate total mass and percentage of each fraction
       
+      numericInput(inputId = "Initial_mass",
+                   label = "Please insert sample mass before sieving",
+                   value = NA
+      ),
       
 
       numericInput(inputId = "Gravel_mass",
@@ -132,6 +139,7 @@ server <- function(input, output) {
   
   # Storing each parameter as a reactive Value
   totalMass <- reactiveVal("")
+  loss <- reactiveVal("")
   gravels <- reactiveVal("")
   sands <- reactiveVal("")
   silts <- reactiveVal("")
@@ -156,6 +164,7 @@ server <- function(input, output) {
   observeEvent(input$update_button, {
     
     totalMass(sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    loss(((input$Initial_mass-totalMass())/input$Initial_mass)*100)
     gravels(100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
     sands(100*input$Sand_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
     silts(100*input$Silt_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
@@ -175,6 +184,8 @@ server <- function(input, output) {
   data <- reactive({
     req(input$update_button)
     data.frame(sampleID = input$sampleID,
+               Init_mass = input$Initial_mass,
+               Loss_weight = loss(),
                Sediment_mass = totalMass(),
                Gravel_perc = gravels(),
                Sand_perc = sands(),
