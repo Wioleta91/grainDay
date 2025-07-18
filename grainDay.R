@@ -7,19 +7,20 @@ library(shiny)
 #library(bslib)
 
 setwd("~/Documents/grainDay")
+source("grainDay/helper_fractionType.R")
 
 
 #data frame for appending the new inputs
 df <- data.frame(sampleID = character(),
-                 Init_mass = numeric(), #weight of the sample before sieve
+                 Init_mass = numeric(), # weight of the sample before sieve
                  Sediment_mass = numeric(),
-                 Loss_weight = numeric(), #% of sample lost
-                 Gravel_perc = numeric(),
+                 Loss_weight = numeric(), # % of sample lost
+                 Gravel_perc = numeric(), # might be removed
                  Sand_perc = numeric(),
                  Silt_perc = numeric(),
                  Clay_perc = numeric(),
                  Location = character(),
-                 Shepherd_Class = character(), #type of sediment based on classification which?
+                 Shepherd_Class = character(), # type of sediment based on classification which?
                  stringsAsFactors = FALSE)
 
 
@@ -29,7 +30,7 @@ ui <- fluidPage(
   
   #here are details on what buttons are displayed in the sidebar
 
-  #App Title
+  # App Title
   titlePanel("GrainDay"),
   
   sidebarLayout(
@@ -191,7 +192,8 @@ server <- function(input, output) {
                Sand_perc = sands(),
                Silt_perc = silts(),
                Clay_perc = clays(),
-               Location = input$sampleLocation
+               Location = input$sampleLocation,
+               Shepherd_Class = NA
                
                
                )
