@@ -102,6 +102,11 @@ ui <- fluidPage(
       #print total mass of the sediment sample - after pressing a button
       textOutput("totalMass_output", container = span),
       
+      #button to download Table
+      actionButton("downloadTable_button", "Download Table"),
+      
+      
+      
       #consider output format 
       #this code has separate tabs for the plot, summary and table
       tabsetPanel(

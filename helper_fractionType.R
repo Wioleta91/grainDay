@@ -33,8 +33,12 @@ source("grainDay/grainDay.R")
 clay_func <- function(Sand_perc, Silt_perc, Clay_perc) {
   if (Sand_perc > 75) {
     return("Sand")
-  } else {
-    return("NA")
+  } else if (Clay_perc > 75) {
+    return("Clay") 
+  } else if (Silt_perc > 75) {
+      return("Silt")
+    
+    }
   }
   
   
@@ -44,7 +48,7 @@ clay_func <- function(Sand_perc, Silt_perc, Clay_perc) {
   
   
   
-}
+
 
 
 
