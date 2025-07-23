@@ -15,7 +15,7 @@ df <- data.frame(sampleID = character(),
                  Init_mass = numeric(), # weight of the sample before sieve
                  Sediment_mass = numeric(),
                  Loss_weight = numeric(), # % of sample lost
-                 Gravel_perc = numeric(), # might be removed
+                 # Gravel_perc = numeric(), # might be removed
                  Sand_perc = numeric(),
                  Silt_perc = numeric(),
                  Clay_perc = numeric(),
@@ -63,10 +63,10 @@ ui <- fluidPage(
       ),
       
 
-      numericInput(inputId = "Gravel_mass",
-                   label = "Please insert Gravel Mass",
-                   value = NA
-      ),
+      #numericInput(inputId = "Gravel_mass",
+      #             label = "Please insert Gravel Mass",
+      #             value = NA
+      # ),
       
       numericInput(inputId = "Sand_mass",
                    label = "Please insert Sand Mass",
@@ -164,12 +164,12 @@ server <- function(input, output) {
 
   observeEvent(input$update_button, {
     
-    totalMass(sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    totalMass(sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
     loss(((input$Initial_mass-totalMass())/input$Initial_mass)*100)
-    gravels(100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
-    sands(100*input$Sand_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
-    silts(100*input$Silt_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
-    clays(100*input$Clay_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    # gravels(100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    sands(100*input$Sand_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    silts(100*input$Silt_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
+    clays(100*input$Clay_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
     # Initial sample mass and % loss has to be added here
     
     # Render the data frame
@@ -188,12 +188,12 @@ server <- function(input, output) {
                Init_mass = input$Initial_mass,
                Loss_weight = loss(),
                Sediment_mass = totalMass(),
-               Gravel_perc = gravels(),
+               # Gravel_perc = gravels(),
                Sand_perc = sands(),
                Silt_perc = silts(),
                Clay_perc = clays(),
                Location = input$sampleLocation,
-               Shepherd_Class = NA
+               Shepherd_Class = clay_func(sands(), silts(), clays())
                
                
                )
