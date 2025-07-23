@@ -37,8 +37,8 @@ clay_func <- function(Sand_perc, Silt_perc, Clay_perc) {
     return("Clay") 
   } else if (Silt_perc > 75) {
       return("Silt")
-    
-    }
+    } else
+      return("NA")
   }
   
   
