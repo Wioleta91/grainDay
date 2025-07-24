@@ -96,23 +96,24 @@ ui <- fluidPage(
     
     # Here is the connecting part between output and server logic
     mainPanel(
-      h5("Sample ID:"),
-      textOutput("sampleID", container = span),
-      h5("Total mass"),
-      #print total mass of the sediment sample - after pressing a button
-      textOutput("totalMass_output", container = span),
+            h5("Sample ID:"),
+            textOutput("sampleID", container = span),
+            h5("Total mass"),
+            #print total mass of the sediment sample - after pressing a button
+            textOutput("totalMass_output", container = span),
       
       #button to download Table
       actionButton("downloadTable_button", "Download Table"),
       
       
       
+      
       #consider output format 
       #this code has separate tabs for the plot, summary and table
       tabsetPanel(
-        tabPanel("Plot", plotOutput("plot")),
         tabPanel("Table", tableOutput("result")),
-        tabPanel("Summary", verbatimTextOutput("summary"))
+        tabPanel("Plot", plotOutput("plot")),
+        tabPanel("Set % Tresholds", verbatimTextOutput("summary"))
         
       )
       
