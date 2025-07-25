@@ -28,7 +28,7 @@ names_class <- c(
   "Sand-Silt-Clay"  # central mixed zone
 )
 
-source("grainDay/grainDay.R")
+#source("grainDay/grainDay.R")
 
 clay_func <- function(Sand_perc, Silt_perc, Clay_perc) {
   if (Sand_perc > 75) {
@@ -39,13 +39,8 @@ clay_func <- function(Sand_perc, Silt_perc, Clay_perc) {
       return("Silt") #define Silt
   } else if (Clay_perc < 50 & Silt_perc <50 & Sand_perc <50) {
       return("Sand-Clay-Silt") #define Mix
-  } else if ( Silt_perc > 70 & Sand_perc > 30 & Sand_perc = 0) {
+  } else if ( Silt_perc > 70 & Sand_perc > 30 ) {
       return("Silty Sand")
-
-    
-    
-    
-    
   } else
       return("Unclassified")
   }
@@ -70,13 +65,6 @@ clay_func <- function(Sand_perc, Silt_perc, Clay_perc) {
 
 
 
-
-
-
-
-say_hello <- function() {
-  print("Hello from the helper!")
-}
 
 
 
