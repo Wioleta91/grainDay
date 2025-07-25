@@ -4,10 +4,11 @@
 #Sediment classification type
 
 library(shiny)
-#library(bslib)
+library(bslib)
 
 setwd("~/Documents/grainDay")
 source("grainDay/helper_fractionType.R")
+source("grainDay/helper_ternaryPlot.R")
 
 
 #data frame for appending the new inputs
@@ -22,6 +23,7 @@ df <- data.frame(sampleID = character(),
                  Location = character(),
                  Shepherd_Class = character(), # type of sediment based on classification which?
                  stringsAsFactors = FALSE)
+
 
 
 # Define UI for grainDay app
@@ -96,7 +98,7 @@ ui <- fluidPage(
     
     # Here is the connecting part between output and server logic
     mainPanel(
-            h5("Sample ID:"),
+            h5("Current sample ID:"),
             textOutput("sampleID", container = span),
             h5("Total mass"),
             #print total mass of the sediment sample - after pressing a button
@@ -104,16 +106,18 @@ ui <- fluidPage(
       
       #button to download Table
       actionButton("downloadTable_button", "Download Table"),
+      #Button to calculate statistics - make it work only for >10 sample inputs
+      actionButton("stats_Button", "Calculate Summary Statistics"),
       
-      
-      
+      #If you want to plot a single sample from the data Table - next add a button to plot all
+      selectInput("selected_sample_output", "Choose a sample to plot:", choices = NULL),
       
       #consider output format 
       #this code has separate tabs for the plot, summary and table
       tabsetPanel(
-        tabPanel("Table", tableOutput("result")),
-        tabPanel("Plot", plotOutput("plot")),
-        tabPanel("Set % Tresholds", verbatimTextOutput("summary"))
+        tabPanel("Data Table", tableOutput("result")),
+        tabPanel("Ternary Plot", plotOutput("plot")),
+        tabPanel("Summary", verbatimTextOutput("summary"))
         
       )
       
@@ -128,7 +132,7 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 # First - the Update button does percentage calculations
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
 
   # Reactive sampleID value
@@ -147,17 +151,21 @@ server <- function(input, output) {
   # Storing each parameter as a reactive Value
   totalMass <- reactiveVal("")
   loss <- reactiveVal("")
-  gravels <- reactiveVal("")
+  # gravels <- reactiveVal("")
   sands <- reactiveVal("")
   silts <- reactiveVal("")
   clays <- reactiveVal("")
+  selected_sample_output <- reactiveVal("") #data point to be plotted?
   
   #just output of total mass in the main field below sample ID (not in Table)
   output$totalMass_output <- renderText({
     totalMass()
-    
   })
   
+  output$selected_sample_output <- renderText({
+    sampleID()
+    })
+    
   
   
   # starting a reactive data frame
@@ -181,6 +189,14 @@ server <- function(input, output) {
     # Render the data frame
     temp_df <- rbind(df_server(),data())
     df_server(temp_df)
+    
+    # Render plot (starting point just the latest sample?)
+    # plot <- plotTern
+    
+    updateSelectInput(session, "selected_sample_output",
+                      choices = df_server()$sampleID)  
+    
+    
 
   })
   
@@ -206,6 +222,12 @@ server <- function(input, output) {
   })
   
   output$result <- renderTable(df_server())
+  
+  output$plot <- renderPlot({
+    plot_Tern
+  })  
+  
+  
   
 
 }
