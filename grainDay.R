@@ -105,7 +105,8 @@ ui <- fluidPage(
             textOutput("totalMass_output", container = span),
       
       #button to download Table
-      actionButton("downloadTable_button", "Download Table"),
+      downloadButton("downloadData", "Download"),
+      
       #Button to calculate statistics - make it work only for >10 sample inputs
       actionButton("stats_Button", "Calculate Summary Statistics"),
       
@@ -229,6 +230,19 @@ server <- function(input, output, session) {
   output$plot <- renderPlot({
     plot_Tern
   })  
+  
+  
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("data-", ".csv", sep=",")
+    },
+    content = function(file) {
+      write.csv(df_server(), file, row.names = FALSE)
+    }
+  )  
+  
+  
+  
   
   
   
