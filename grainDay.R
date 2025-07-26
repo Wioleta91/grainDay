@@ -118,7 +118,7 @@ ui <- fluidPage(
       tabsetPanel(
         tabPanel("Data Table", tableOutput("result")),
         tabPanel("Ternary Plot", plotOutput("plot")),
-        tabPanel("Summary", verbatimTextOutput("summary"))
+        tabPanel("Summary", verbatimTextOutput("summary")) #generate summary from Data Table
         
       )
       
@@ -173,6 +173,7 @@ server <- function(input, output, session) {
   
   # starting a reactive data frame
   df_server <- reactiveVal(df)
+  stats_calc <- reactiveValues()
   
   
 
@@ -199,10 +200,22 @@ server <- function(input, output, session) {
     
 
     updateSelectInput(session, "selected_sample_output",
-                      choices = df_server()$sampleID)  
+                      choices = df_server()$sampleID)
+    
+    
 
 
   })
+  
+
+  observeEvent(input$stats_Button, {
+    stats_calc$result <- summary(df_server())
+  })  
+  
+  
+  
+  
+  
   
   
   
@@ -226,6 +239,11 @@ server <- function(input, output, session) {
   })
   
   output$result <- renderTable(df_server())
+  output$summary <- renderPrint({
+    req(stats_calc$result)
+    stats_calc$result
+  })  
+  
   
   output$plot <- renderPlot({
     plot_Tern
