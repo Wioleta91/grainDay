@@ -155,7 +155,9 @@ server <- function(input, output, session) {
   sands <- reactiveVal("")
   silts <- reactiveVal("")
   clays <- reactiveVal("")
-  selected_sample_output <- reactiveVal("") #data point to be plotted?
+  #selected_sample_output <- reactive({
+   # req()}) #data point to be plotted?
+  
   
   #just output of total mass in the main field below sample ID (not in Table)
   output$totalMass_output <- renderText({
@@ -177,14 +179,15 @@ server <- function(input, output, session) {
   #
 
   observeEvent(input$update_button, {
-    
+    req(input$Initial_mass, input$Sand_mass, input$Silt_mass, input$Clay_mass)
     totalMass(sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
     loss(((input$Initial_mass-totalMass())/input$Initial_mass)*100)
     # gravels(100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
     sands(100*input$Sand_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
     silts(100*input$Silt_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
     clays(100*input$Clay_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
-    # Initial sample mass and % loss has to be added here
+
+    
     
     # Render the data frame
     temp_df <- rbind(df_server(),data())
@@ -193,10 +196,10 @@ server <- function(input, output, session) {
     # Render plot (starting point just the latest sample?)
     # plot <- plotTern
     
+
     updateSelectInput(session, "selected_sample_output",
                       choices = df_server()$sampleID)  
-    
-    
+
 
   })
   
