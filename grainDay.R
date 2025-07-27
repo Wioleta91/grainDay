@@ -86,10 +86,11 @@ ui <- fluidPage(
                    value = NA
       ),
      
+     
      # This action button calculates total mass of sediments
      # It also stores the data input to the Table with calculated percentages of each fraction
-     # Additionally, stores the sample Location (collection) data
-     actionButton("update_button", #update instead of totalMass_button
+     # Additionally, stores the sample Location (collection site) data
+     actionButton("update_button",
                   "Calculate Parameters"),
      
      
@@ -145,22 +146,21 @@ server <- function(input, output, session) {
     input$sampleLocation})
   
   
-  # Calculating the total mass value of sediment fractions instruction
-  # When the button is pushed, calculate total mass
-  # And calculate the % of each fraction and append them to the Table
+  # When the update_button is pushed, calculate the total sample mass
+  # Then calculate the % of each fraction and append them to the Table
+  # Also calculates % of sample lost during measurement
   
   # Storing each parameter as a reactive Value
   totalMass <- reactiveVal("")
   loss <- reactiveVal("")
-  # gravels <- reactiveVal("")
   sands <- reactiveVal("")
   silts <- reactiveVal("")
   clays <- reactiveVal("")
-  #selected_sample_output <- reactive({
-   # req()}) #data point to be plotted?
   
+  # gravels <- reactiveVal("") - it might be added later for different sediment classifications
+
   
-  #just output of total mass in the main field below sample ID (not in Table)
+  #Shows sample ID and the total mass of the most recently added sample in the main field
   output$totalMass_output <- renderText({
     totalMass()
   })
@@ -172,33 +172,28 @@ server <- function(input, output, session) {
   
   
   # starting a reactive data frame
-  df_server <- reactiveVal(df)
+  df_server <- reactiveVal(df) # takes the df initiated before the UI
   stats_calc <- reactiveValues()
   
-  
 
-  
-  #
+  # Observe event when the buttons are clicked
 
-  observeEvent(input$update_button, {
+  observeEvent(input$update_button, { #main calculations
     req(input$Initial_mass, input$Sand_mass, input$Silt_mass, input$Clay_mass)
     totalMass(sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
     loss(((input$Initial_mass-totalMass())/input$Initial_mass)*100)
-    # gravels(100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
     sands(100*input$Sand_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
     silts(100*input$Silt_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
     clays(100*input$Clay_mass/sum(input$Sand_mass+input$Silt_mass+input$Clay_mass))
-
+    # gravels(100*input$Gravel_mass/sum(input$Gravel_mass+input$Sand_mass+input$Silt_mass+input$Clay_mass))
     
+
     
     # Render the data frame
     temp_df <- rbind(df_server(),data())
     df_server(temp_df)
     
-    # Render plot (starting point just the latest sample?)
-    # plot <- plotTern
-    
-
+    # This is applied to the drop down list
     updateSelectInput(session, "selected_sample_output",
                       choices = df_server()$sampleID)
     
@@ -207,9 +202,10 @@ server <- function(input, output, session) {
 
   })
   
-
+  # When stats button is pressed, calculate basic summary from the data table
   observeEvent(input$stats_Button, {
-    stats_calc$result <- summary(df_server())
+    stats_calc$result <- summary(
+      df_server())
   })  
   
   
@@ -219,7 +215,7 @@ server <- function(input, output, session) {
   
   
   
-  ## Apply calculated values to the DF
+  ## Apply calculated mass and fraction % values to the DF
   
   data <- reactive({
     req(input$update_button)
@@ -232,24 +228,27 @@ server <- function(input, output, session) {
                Silt_perc = silts(),
                Clay_perc = clays(),
                Location = input$sampleLocation,
-               Shepherd_Class = clay_func(sands(), silts(), clays())
+               Shepard_Class = clay_func(sands(), silts(), clays()) #this is not fully checked yet
                
                
                )
   })
   
+  #render all the outputs
   output$result <- renderTable(df_server())
   output$summary <- renderPrint({
     req(stats_calc$result)
     stats_calc$result
   })  
   
-  
+
   output$plot <- renderPlot({
     plot_Tern
   })  
   
   
+   
+  # Download the data table and save as CSV file
   output$downloadData <- downloadHandler(
     filename = function() {
       paste("data-", ".csv", sep=",")
