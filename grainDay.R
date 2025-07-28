@@ -17,11 +17,11 @@ df <- data.frame(sampleID = character(),
                  Sediment_mass = numeric(),
                  Loss_weight = numeric(), # % of sample lost
                  # Gravel_perc = numeric(), # might be removed
-                 Sand_perc = numeric(),
-                 Silt_perc = numeric(),
-                 Clay_perc = numeric(),
+                 Sand = numeric(),
+                 Clay = numeric(),
+                 Silt = numeric(),
                  Location = character(),
-                 Shepherd_Class = character(), # type of sediment based on classification which?
+                 Shepard_Class = character(), # type of sediment based on classification which?
                  stringsAsFactors = FALSE)
 
 
@@ -171,7 +171,7 @@ server <- function(input, output, session) {
     
   
   
-  # starting a reactive data frame
+  # Starting a reactive data frame
   df_server <- reactiveVal(df) # takes the df initiated before the UI
   stats_calc <- reactiveValues()
   
@@ -204,15 +204,10 @@ server <- function(input, output, session) {
   
   # When stats button is pressed, calculate basic summary from the data table
   observeEvent(input$stats_Button, {
+    req(input$Initial_mass, input$Sand_mass, input$Silt_mass, input$Clay_mass)
     stats_calc$result <- summary(
       df_server())
   })  
-  
-  
-  
-  
-  
-  
   
   
   ## Apply calculated mass and fraction % values to the DF
@@ -224,9 +219,9 @@ server <- function(input, output, session) {
                Loss_weight = loss(),
                Sediment_mass = totalMass(),
                # Gravel_perc = gravels(),
-               Sand_perc = sands(),
-               Silt_perc = silts(),
-               Clay_perc = clays(),
+               Sand = sands(),
+               Clay = clays(),
+               Silt = silts(),
                Location = input$sampleLocation,
                Shepard_Class = clay_func(sands(), silts(), clays()) #this is not fully checked yet
                
@@ -234,7 +229,7 @@ server <- function(input, output, session) {
                )
   })
   
-  #render all the outputs
+  # Render all the outputs
   output$result <- renderTable(df_server())
   output$summary <- renderPrint({
     req(stats_calc$result)
@@ -243,12 +238,25 @@ server <- function(input, output, session) {
   
 
   output$plot <- renderPlot({
-    plot_Tern
+    req(input$update_button)
+    plot_Tern +
+      geom_point(
+        data = df_server(),
+        mapping = aes(
+          Sand,
+          Clay,
+          Silt,
+          color = Location
+        ),
+        size = 3,
+        inherit.aes = FALSE
+        
+      )
   })  
   
   
    
-  # Download the data table and save as CSV file
+  # Download the data table and save as CSV
   output$downloadData <- downloadHandler(
     filename = function() {
       paste("data-", ".csv", sep=",")
@@ -258,6 +266,15 @@ server <- function(input, output, session) {
     }
   )  
   
+  # Download the chart
+  output$downloadPlot <- downloadHandler(
+    filename = function() {
+      paste("plot-", "png", sep="")
+    },
+    content = function(file) {
+      savePlot(df_server(), file, row.names = FALSE)
+    }
+  )  
   
   
   
