@@ -1,6 +1,5 @@
 #This program takes in percentage of grain type in a sediment and calculates sediment type
 #Classifying sediment types based on grain size is a well-scoped, achievable project
-#The project has to be broken down into small steps
 #Sediment classification type
 
 library(shiny)
@@ -106,7 +105,12 @@ ui <- fluidPage(
             textOutput("totalMass_output", container = span),
       
       #button to download Table
-      downloadButton("downloadData", "Download"),
+      downloadButton("downloadData", "Data Table"),
+      
+      #button to download Plot
+      downloadButton("downloadPlot", "Chart"),
+      
+      
       
       #Button to calculate statistics - make it work only for >10 sample inputs
       actionButton("stats_Button", "Calculate Summary Statistics"),
@@ -236,8 +240,10 @@ server <- function(input, output, session) {
     stats_calc$result
   })  
   
-
-  output$plot <- renderPlot({
+  
+  #reactive plot
+  
+  plot_reactive <- reactive({
     req(input$update_button)
     plot_Tern +
       geom_point(
@@ -250,11 +256,13 @@ server <- function(input, output, session) {
         ),
         size = 3,
         inherit.aes = FALSE
-        
       )
-  })  
+  })
   
-  
+  output$plot <- renderPlot({
+    plot_reactive()
+  })
+
    
   # Download the data table and save as CSV
   output$downloadData <- downloadHandler(
@@ -269,14 +277,12 @@ server <- function(input, output, session) {
   # Download the chart
   output$downloadPlot <- downloadHandler(
     filename = function() {
-      paste("plot-", "png", sep="")
+      "chart.png"
     },
     content = function(file) {
-      savePlot(df_server(), file, row.names = FALSE)
+      ggsave(file, plot = plot_reactive(), width = 290, height = 265, units = "mm", device = "png")
     }
   )  
-  
-  
   
   
   
