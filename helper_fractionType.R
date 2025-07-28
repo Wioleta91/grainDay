@@ -30,16 +30,16 @@ names_class <- c(
 
 #source("grainDay/grainDay.R")
 
-clay_func <- function(Sand_perc, Silt_perc, Clay_perc) {
-  if (Sand_perc > 75) {
+clay_func <- function(Sand, Silt, Clay) {
+  if (Sand > 75) {
     return("Sand") #define Sand
-  } else if (Clay_perc > 75) {
+  } else if (Clay > 75) {
     return("Clay") #define Clay
-  } else if (Silt_perc > 75) {
+  } else if (Silt > 75) {
       return("Silt") #define Silt
-  } else if (Clay_perc < 50 & Silt_perc <50 & Sand_perc <50) {
+  } else if (Clay < 50 & Silt <50 & Sand <50) {
       return("Sand-Clay-Silt") #define Mix
-  } else if ( Silt_perc > 70 & Sand_perc > 30 ) {
+  } else if ( Silt > 70 & Sand > 30 ) {
       return("Silty Sand")
   } else
       return("Unclassified")
