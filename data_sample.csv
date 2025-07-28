@@ -1,0 +1,4 @@
+"sampleID","Init_mass","Loss_weight","Sediment_mass","Sand_perc","Silt_perc","Clay_perc","Location","Shepard_Class"
+"A1",100,7,93,32.258064516129,32.258064516129,35.4838709677419,"Reda","Sand-Clay-Silt"
+"A2",150,0,150,33.3333333333333,66.6666666666667,0,"Reda","Unclassified"
+"A3",150,5.33333333333333,142,14.0845070422535,78.8732394366197,7.04225352112676,"Reda","Silt"
