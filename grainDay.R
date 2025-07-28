@@ -1,6 +1,19 @@
-#This program takes in percentage of grain type in a sediment and calculates sediment type
-#Classifying sediment types based on grain size is a well-scoped, achievable project
-#Sediment classification type
+#Author: Wioleta Rasmus (PhD)
+#contact: wiolarasmus@gmail.com
+#github: Wioleta91
+#This program takes in entry weight of soil sample
+#Calculates % of sand, silt and clay based on the user weight input
+#!!Work in progress - the sediment/soil type is not yet functional!!
+#The samples are then plotted on a USDA soil type chart available from the ggtern package
+#The graph can be downloaded, as well as the data table
+#Summary is also available and plain ternary chart with your samples
+#I hope to further develop this app and add following features: uploading your own csv data, 
+#more flexibility on which samples to plot, 
+#and most importantly a few different sediment and soil classification graphs and methods
+#Contact me for questions and possible collaborations! 
+#
+#This is my first Shiny app, be nice :)
+#For more information: https://github.com/Wioleta91/grainDay
 
 library(shiny)
 library(bslib)
@@ -29,21 +42,43 @@ df <- data.frame(sampleID = character(),
 
 ui <- fluidPage( 
   
+  theme = bs_theme(bootswatch = "cerulean", base_font = font_google("Open Sans")),
+  tags$head(
+    tags$style(HTML("
+    .well {
+      padding: 10px !important;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    input[type='text'], input[type='number'] {
+      max-width: 100%;
+      font-size: 14px;
+    }
+  "))
+  ),
+  
   #here are details on what buttons are displayed in the sidebar
 
   # App Title
-  titlePanel("GrainDay"),
+  tags$div(
+    style = "background-color:#2C3E50; color:white; padding:20px; margin-bottom:30px; border-radius:5px;",
+    h2("GrainDay: Soil and Sediment Classification Tool"),
+    p("Analyze grain fractions and visualize samples on ternary diagrams")
+  ),
   
   sidebarLayout(
     
     sidebarPanel(
       
+      width = 3,
       # Future ideas: different types of classification might be added
       # actionButton("type_button", "Select type of sediment classification"),
       
       # For easy visualization, this textInput field asks for the sample ID
       # The text will reactively appear on the main field
       # To resolve: The active sample can be used to calculate ternary diagram
+      h4("Define Sample"),
       textInput(inputId = "sampleID",
                 label = "Please insert sample ID:",
                 value = "Type sampleID"),
@@ -58,6 +93,7 @@ ui <- fluidPage(
       # This will be used to 
       # calculate total mass and percentage of each fraction
       
+      h4("Define mass of the sample and each fraction"),
       numericInput(inputId = "Initial_mass",
                    label = "Please insert sample mass before sieving",
                    value = NA
@@ -98,35 +134,42 @@ ui <- fluidPage(
     
     # Here is the connecting part between output and server logic
     mainPanel(
-            h5("Current sample ID:"),
+      fluidRow(
+      column(width = 6, 
+            h5("Recently added sample - ID:"),
             textOutput("sampleID", container = span),
-            h5("Total mass"),
+    
+            h5("Recently added sample - Total mass"),
             #print total mass of the sediment sample - after pressing a button
-            textOutput("totalMass_output", container = span),
+            textOutput("totalMass_output"),
+            #Button to calculate statistics - make it work only for >10 sample inputs
+            actionButton("stats_Button", "Calculate Summary Statistics"),
+            br(),
+            #If you want to plot a single sample from the data Table - next add a button to plot all
+            selectInput("selected_sample_output", "(In progress)Choose to plot:", choices = NULL),
+      ),
       
+      column(
+      width = 6, 
       #button to download Table
-      downloadButton("downloadData", "Data Table"),
-      
+      downloadButton("downloadData", "Download Data Table"),
+      br(), br(),
       #button to download Plot
-      downloadButton("downloadPlot", "Chart"),
-      
-      
-      
-      #Button to calculate statistics - make it work only for >10 sample inputs
-      actionButton("stats_Button", "Calculate Summary Statistics"),
-      
-      #If you want to plot a single sample from the data Table - next add a button to plot all
-      selectInput("selected_sample_output", "Choose a sample to plot:", choices = NULL),
-      
+      downloadButton("downloadPlot", "Download USDA Ternary Chart"),
+      br(), br(),
+      #button to download Plot
+      downloadButton("downloadPlot_Clean", "Download Plain Ternary Chart")
+    
+      )
+      ),
       #consider output format 
       #this code has separate tabs for the plot, summary and table
       tabsetPanel(
-        tabPanel("Data Table", tableOutput("result")),
-        tabPanel("Ternary Plot", plotOutput("plot")),
-        tabPanel("Summary", verbatimTextOutput("summary")) #generate summary from Data Table
-        
-      )
-      
+        tabPanel("🧮 Data Table", tableOutput("result")),
+        tabPanel("🌱 USDA Soil Plot", plotOutput("plot")),
+        tabPanel("📈 Clean Ternary", plotOutput("plot_Clean")),
+        tabPanel("📊 Summary", verbatimTextOutput("summary"))
+      )      
       
     )
   )
@@ -241,7 +284,7 @@ server <- function(input, output, session) {
   })  
   
   
-  #reactive plot
+  #reactive USDA soil plot
   
   plot_reactive <- reactive({
     req(input$update_button)
@@ -259,15 +302,42 @@ server <- function(input, output, session) {
       )
   })
   
+  
+  #reactive clean ternary plot
+  
+  clean_plot_reactive <- reactive({
+    req(input$update_button)
+    ternPlot_clean +
+      geom_point(
+        data = df_server(),
+        mapping = aes(
+          Sand,
+          Clay,
+          Silt,
+          color = Location
+        ),
+        size = 3,
+        inherit.aes = FALSE
+      )
+  })
+
+  
+  
+  # attach the plots to correct Tabs
   output$plot <- renderPlot({
     plot_reactive()
   })
+  
+  output$plot_Clean <- renderPlot({
+    clean_plot_reactive()
+  })
+  
 
    
   # Download the data table and save as CSV
   output$downloadData <- downloadHandler(
     filename = function() {
-      paste("data-", ".csv", sep=",")
+      paste("data-", ".csv", sep="")
     },
     content = function(file) {
       write.csv(df_server(), file, row.names = FALSE)
@@ -281,6 +351,16 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       ggsave(file, plot = plot_reactive(), width = 290, height = 265, units = "mm", device = "png")
+    }
+  )  
+  
+  # Download the clean chart
+  output$downloadPlot_Clean <- downloadHandler(
+    filename = function() {
+      "chart_clean.png"
+    },
+    content = function(file) {
+      ggsave(file, plot = clean_plot_reactive(), width = 290, height = 265, units = "mm", device = "png")
     }
   )  
   

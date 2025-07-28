@@ -42,29 +42,64 @@ plot_Tern
 mock_data <- read.csv("grainDay/data_sample.csv")
 colnames(mock_data)[c(5:7)] <- c("Sand", "Clay", "Silt")
 
-plot_Tern +
-  geom_point(
-    data = mock_data,
-    mapping = aes(
-      Sand,
-      Clay,
-      Silt,
-      color = Location
-    ),
-    size = 3,
-    inherit.aes = FALSE
-  )
+mock_data <- data.frame(sampleID = character(),
+                 Init_mass = numeric(), # weight of the sample before sieve
+                 Sediment_mass = numeric(),
+                 Loss_weight = numeric(), # % of sample lost
+                 Sand = numeric(),
+                 Clay = numeric(),
+                 Silt = numeric(),
+                 Location = character(),
+                 Shepard_Class = character(), # type of sediment based on classification which?
+                 stringsAsFactors = FALSE)
+
+
+# plot_Tern +
+#   geom_point(
+#     data = mock_data,
+#     mapping = aes(
+#       Sand,
+#       Clay,
+#       Silt,
+#       color = Location
+#     ),
+#     size = 3,
+#     inherit.aes = FALSE
+#   )
+###
+# ternPlot_clean <- function(data) {
+#   ggplot(data = data, aes(x = Loss_weight, y = Clay, z = Silt, color = Location)) 
+#     
+# }
 
 
 
 ternPlot_clean <- ggtern(data = mock_data, aes(x = Sand, y = Clay, z = Silt, color = Location)) +
-                  geom_point() +
-                  theme_showsecondary() +
-                  theme_showarrows() +
-                  theme_rgbw() +
-                  labs(title = "USDA Textural Classification Chart",
-                       fill = "Sample Location",
-                       color = "Textural Class")
+    geom_point(size = 3) +
+    geom_mask() +
+    theme_showsecondary() +
+    theme_showarrows() +
+    theme_rgbw() +
+    weight_percent() +
+    guides(fill='none') +
+    theme_legend_position("topleft") +
+    labs(
+      title = "Ternary Chart - Clean",
+      fill = "Sample Location",
+      color = "Collection Site"
+    )
+
+
+
+
+ternPlot_clean
+
+
+
+
+
+
+
 
 
 
